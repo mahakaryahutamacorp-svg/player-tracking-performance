@@ -1,0 +1,541 @@
+/* === Google Fonts === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+/* ============================================
+   🏀 PLAYER TRACKING — DARK GOLD THEME
+   Design: Gunmetal Gray + Charcoal + Gold #D4AF37
+   ============================================ */
+
+/* === CSS Custom Properties === */
+:root {
+  /* Core Colors */
+  --gold: #D4AF37;
+  --gold-light: #E8C94A;
+  --gold-dark: #B8960E;
+  --gold-muted: rgba(212, 175, 55, 0.15);
+  --gold-glow: rgba(212, 175, 55, 0.4);
+  
+  /* Dark Palette */
+  --bg-primary: #0A0A0F;
+  --bg-secondary: #12121A;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
+  --bg-elevated: rgba(255, 255, 255, 0.05);
+  
+  /* Gunmetal & Charcoal */
+  --gunmetal: #1A1A2E;
+  --charcoal: #16161F;
+  --charcoal-light: #1E1E2D;
+  
+  /* Text */
+  --text-primary: #F0F0F5;
+  --text-secondary: #8B8B9E;
+  --text-muted: #55556A;
+  
+  /* Status */
+  --success: #00C48C;
+  --danger: #FF4757;
+  --warning: #FFA502;
+  --info: #3742FA;
+  
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-gold: rgba(212, 175, 55, 0.3);
+  
+  /* Shadows */
+  --shadow-gold: 0 0 20px rgba(212, 175, 55, 0.15);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.4);
+  
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+/* === Base Reset === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* === Selection === */
+::selection {
+  background: var(--gold-muted);
+  color: var(--gold);
+}
+
+/* ============================================
+   GLASSMORPHISM CARD
+   ============================================ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.glass-card-static {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   GOLD GRADIENT BORDER
+   ============================================ */
+.gold-border {
+  position: relative;
+  border: none;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.gold-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--gold) 0%,
+    transparent 40%,
+    transparent 60%,
+    var(--gold-dark) 100%
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: 
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.gold-border-animated::before {
+  background: linear-gradient(
+    var(--gold-border-angle, 135deg),
+    var(--gold) 0%,
+    transparent 40%,
+    transparent 60%,
+    var(--gold-dark) 100%
+  );
+  animation: gold-border-rotate 4s linear infinite;
+}
+
+@keyframes gold-border-rotate {
+  0% { --gold-border-angle: 0deg; }
+  100% { --gold-border-angle: 360deg; }
+}
+
+@property --gold-border-angle {
+  syntax: '<angle>';
+  initial-value: 135deg;
+  inherits: false;
+}
+
+/* ============================================
+   GOLD GLOW EFFECTS
+   ============================================ */
+.gold-glow {
+  box-shadow: 
+    0 0 10px rgba(212, 175, 55, 0.2),
+    0 0 30px rgba(212, 175, 55, 0.1),
+    0 0 60px rgba(212, 175, 55, 0.05);
+}
+
+.gold-glow-text {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+.gold-glow-strong {
+  box-shadow: 
+    0 0 15px rgba(212, 175, 55, 0.4),
+    0 0 45px rgba(212, 175, 55, 0.2),
+    0 0 80px rgba(212, 175, 55, 0.1);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #0A0A0F;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.btn-gold:hover {
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-1px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.btn-ghost:hover {
+  border-color: var(--border-gold);
+  color: var(--gold);
+}
+
+/* ============================================
+   INPUT FIELDS
+   ============================================ */
+.input-dark {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  outline: none;
+  width: 100%;
+}
+
+.input-dark:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-muted);
+}
+
+.input-dark::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-gold {
+  background: var(--gold-muted);
+  color: var(--gold);
+}
+
+.badge-success {
+  background: rgba(0, 196, 140, 0.15);
+  color: var(--success);
+}
+
+.badge-danger {
+  background: rgba(255, 71, 87, 0.15);
+  color: var(--danger);
+}
+
+/* ============================================
+   BOTTOM NAV
+   ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 0;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.bottom-nav-item.active {
+  color: var(--gold);
+}
+
+.bottom-nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px var(--gold-glow);
+}
+
+/* ============================================
+   STAT CARD
+   ============================================ */
+.stat-value {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 700;
+  font-size: 28px;
+  background: linear-gradient(135deg, var(--text-primary), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+/* ============================================
+   CHART CONTAINERS
+   ============================================ */
+.chart-container {
+  width: 100%;
+  padding: 16px;
+}
+
+/* Recharts custom styling */
+.recharts-cartesian-grid line {
+  stroke: var(--border-subtle) !important;
+}
+
+.recharts-text {
+  fill: var(--text-secondary) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Custom tooltip */
+.custom-tooltip {
+  background: rgba(18, 18, 26, 0.95) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-gold) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 12px 16px !important;
+  box-shadow: var(--shadow-gold) !important;
+}
+
+.custom-tooltip .label {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.custom-tooltip .value {
+  color: var(--gold);
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ============================================
+   PAGE TRANSITIONS & ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-gold {
+  animation: pulseGold 2s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.08) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ============================================
+   MAP OVERRIDES (Leaflet)
+   ============================================ */
+.leaflet-container {
+  background: var(--bg-primary) !important;
+  border-radius: var(--radius-lg);
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+}
+
+.leaflet-control-zoom a {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 10, 15, 0.8) !important;
+  color: var(--text-muted) !important;
+  font-size: 9px !important;
+}
+
+/* Gold glow polyline */
+.gold-route-glow {
+  filter: drop-shadow(0 0 6px var(--gold)) drop-shadow(0 0 12px var(--gold-glow));
+}
+
+/* ============================================
+   HORIZONTAL SCROLL (Swipeable Cards)
+   ============================================ */
+.scroll-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE UTILS
+   ============================================ */
+.safe-bottom {
+  padding-bottom: max(88px, calc(72px + env(safe-area-inset-bottom)));
+}
+
+/* Desktop container */
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .desktop-only {
+    display: none !important;
+  }
+}

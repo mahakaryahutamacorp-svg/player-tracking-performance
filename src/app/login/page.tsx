@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Activity, User, Lock, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,29 +18,38 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      // Logic for real Supabase Auth
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-      });
-
-      if (error) throw error;
-
-      // Upon success, check role for redirection
-      const { data: profile } = await supabase
+      // 🏀 CUSTOM AUTH LOGIC (Plain-text Username/Password)
+      const { data: user, error } = await supabase
         .from('users')
-        .select('role')
-        .eq('auth_id', data.user.id)
+        .select('id, username, role, full_name')
+        .eq('username', username)
+        .eq('password_plain', password)
         .single();
 
-      if (profile?.role === "admin") {
+      if (error || !user) {
+        throw new Error("ID atau Password salah.");
+      }
+
+      // Set a simple cookie for Middleware (Expires in 7 days)
+      const sessionData = {
+        id: user.id,
+        role: user.role,
+        name: user.full_name
+      };
+      
+      const expires = new Date();
+      expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000));
+      document.cookie = `pt_session=${JSON.stringify(sessionData)}; expires=${expires.toUTCString()}; path=/`;
+
+      // Success! Redirect based on role
+      if (user.role === "admin") {
         router.push("/admin");
       } else {
         router.push("/player");
       }
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Login failed. Check your credentials.");
+      alert(err.message || "Gagal masuk. Silakan cek ID dan Password Anda.");
     } finally {
       setLoading(false);
     }
@@ -63,29 +72,43 @@ export default function LoginPage() {
         {/* Login Form */}
         <form onSubmit={handleLogin} className="glass-card gold-border p-6 space-y-4">
           <div>
-            <label className="text-[10px] uppercase tracking-wider font-semibold mb-1.5 block" style={{ color: "var(--text-muted)" }}>Email</label>
+            <label className="text-[10px] uppercase tracking-wider font-semibold mb-1.5 block" style={{ color: "var(--text-muted)" }}>User ID</label>
             <div className="relative">
-              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-              <input className="input-dark pl-10" type="email" placeholder="nama@timnas.id" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
+              <input 
+                className="input-dark pl-10" 
+                type="text" 
+                placeholder="coach12" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+                required 
+              />
             </div>
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider font-semibold mb-1.5 block" style={{ color: "var(--text-muted)" }}>Password</label>
             <div className="relative">
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-              <input className="input-dark pl-10 pr-10" type={showPw ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <input 
+                className="input-dark pl-10 pr-10" 
+                type={showPw ? "text" : "password"} 
+                placeholder="••••••••" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
-          <button type="submit" disabled={loading} className="btn-gold w-full py-3.5 text-base">
-            {loading ? "Logging in..." : "Login"}
+          <button type="submit" disabled={loading} className="btn-gold w-full py-3.5 text-base shadow-lg transition-all active:scale-95">
+            {loading ? "Mengecek ID..." : "Login"}
           </button>
         </form>
 
         <p className="text-center text-[10px] mt-4" style={{ color: "var(--text-muted)" }}>
-          Demo: gunakan email dengan &quot;admin&quot; untuk Coach mode
+          Demo Coach: <strong>coach12 / 223344</strong>
         </p>
       </div>
     </div>

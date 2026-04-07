@@ -26,8 +26,10 @@ END $$;
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   auth_id UUID UNIQUE, 
-  email TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE,
   full_name TEXT NOT NULL,
+  username TEXT UNIQUE,
+  password_plain TEXT,
   role user_role DEFAULT 'player',
   position player_position,
   jersey_number INTEGER,

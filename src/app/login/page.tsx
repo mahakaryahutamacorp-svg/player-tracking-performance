@@ -1,30 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, User, Lock, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [focusEmail, setFocusEmail] = useState(false);
+  const [focusPassword, setFocusPassword] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
-      // 🏀 CUSTOM AUTH LOGIC (Plain-text Username/Password)
-      const { data: user, error } = await supabase
-        .from('users')
-        .select('id, username, role, full_name')
-        .eq('username', username)
-        .eq('password_plain', password)
-        .single();
+      // 🏀 CUSTOM AUTH: RPC bypasses RLS safely (see supabase_custom_auth_login.sql)
+      const { data, error } = await supabase.rpc("login_with_credentials", {
+        p_username: email.trim(),
+        p_password: password,
+      });
+
+      const user = Array.isArray(data) ? data[0] : data;
 
       if (error || !user) {
         throw new Error("ID atau Password salah.");
@@ -34,11 +36,11 @@ export default function LoginPage() {
       const sessionData = {
         id: user.id,
         role: user.role,
-        name: user.full_name
+        name: user.full_name,
       };
-      
+
       const expires = new Date();
-      expires.setTime(expires.getTime() + (7 * 24 * 60 * 60 * 1000));
+      expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
       document.cookie = `pt_session=${JSON.stringify(sessionData)}; expires=${expires.toUTCString()}; path=/`;
 
       // Success! Redirect based on role
@@ -47,68 +49,185 @@ export default function LoginPage() {
       } else {
         router.push("/player");
       }
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Gagal masuk. Silakan cek ID dan Password Anda.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Gagal masuk. Silakan cek ID dan Password Anda.";
+      alert(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-8" style={{ background: "radial-gradient(circle, var(--gold) 0%, transparent 70%)" }} />
+    <div className="relative min-h-screen flex items-end justify-center overflow-hidden">
+      {/* ─── Full-screen Background ─── */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/images/logo.png')`,
+          backgroundPosition: "center top",
+        }}
+      />
 
-      <div className="w-full max-w-sm relative z-10 animate-fade-in-up">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 gold-glow" style={{ background: "linear-gradient(135deg, var(--gold), var(--gold-dark))" }}>
-            <Activity size={32} color="#0A0A0F" strokeWidth={2.5} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">Player Tracking</h1>
-          <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>National Basketball Team</p>
+      {/* ─── Charcoal overlay ─── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(26,26,26,0.35) 0%, rgba(26,26,26,0.6) 40%, rgba(26,26,26,0.92) 70%, #1A1A1A 100%)",
+        }}
+      />
+
+      {/* ─── Content ─── */}
+      <div className="relative z-10 w-full max-w-sm px-6 pb-14 animate-fade-in-up">
+        {/* Brand name */}
+        <div className="mb-10 text-center">
+          <h1
+            className="text-5xl font-black tracking-tight leading-none"
+            style={{
+              color: "#D4AF37",
+              textShadow:
+                "0 0 30px rgba(212,175,55,0.5), 0 2px 8px rgba(0,0,0,0.6)",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Pattikawa
+          </h1>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="glass-card gold-border p-6 space-y-4">
+        {/* ─── Form ─── */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Email field */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider font-semibold mb-1.5 block" style={{ color: "var(--text-muted)" }}>User ID</label>
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-              <input 
-                className="input-dark pl-10" 
-                type="text" 
-                placeholder="coach12" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-                required 
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusEmail(true)}
+              onBlur={() => setFocusEmail(false)}
+              required
+              style={{
+                display: "block",
+                width: "100%",
+                background: "rgba(42,42,42,0.7)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                border: focusEmail
+                  ? "1px solid #D4AF37"
+                  : "1px solid rgba(212,175,55,0.2)",
+                boxShadow: focusEmail
+                  ? "0 0 0 2px rgba(212,175,55,0.25), 0 0 16px rgba(212,175,55,0.2)"
+                  : "none",
+                borderRadius: "10px",
+                color: "#F0F0F5",
+                padding: "14px 16px",
+                fontSize: "15px",
+                outline: "none",
+                transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+              }}
+            />
           </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-wider font-semibold mb-1.5 block" style={{ color: "var(--text-muted)" }}>Password</label>
-            <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
-              <input 
-                className="input-dark pl-10 pr-10" 
-                type={showPw ? "text" : "password"} 
-                placeholder="••••••••" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
-              />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-muted)" }}>
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+
+          {/* Password field */}
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPw ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusPassword(true)}
+              onBlur={() => setFocusPassword(false)}
+              required
+              style={{
+                display: "block",
+                width: "100%",
+                background: "rgba(42,42,42,0.7)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                border: focusPassword
+                  ? "1px solid #D4AF37"
+                  : "1px solid rgba(212,175,55,0.2)",
+                boxShadow: focusPassword
+                  ? "0 0 0 2px rgba(212,175,55,0.25), 0 0 16px rgba(212,175,55,0.2)"
+                  : "none",
+                borderRadius: "10px",
+                color: "#F0F0F5",
+                padding: "14px 48px 14px 16px",
+                fontSize: "15px",
+                outline: "none",
+                transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              style={{
+                position: "absolute",
+                right: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "rgba(212,175,55,0.6)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
-          <button type="submit" disabled={loading} className="btn-gold w-full py-3.5 text-base shadow-lg transition-all active:scale-95">
-            {loading ? "Mengecek ID..." : "Login"}
+
+          {/* Login button */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              display: "block",
+              width: "100%",
+              background: loading
+                ? "rgba(212,175,55,0.5)"
+                : "linear-gradient(135deg, #D4AF37 0%, #B8960E 100%)",
+              color: "#0A0A0A",
+              fontWeight: 700,
+              fontSize: "15px",
+              letterSpacing: "0.04em",
+              border: "none",
+              borderRadius: "10px",
+              padding: "15px",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+              boxShadow: loading
+                ? "none"
+                : "0 4px 20px rgba(212,175,55,0.35)",
+              marginTop: "8px",
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                  "0 6px 28px rgba(212,175,55,0.55)";
+                (e.currentTarget as HTMLButtonElement).style.transform =
+                  "translateY(-1px)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                "0 4px 20px rgba(212,175,55,0.35)";
+              (e.currentTarget as HTMLButtonElement).style.transform =
+                "translateY(0)";
+            }}
+          >
+            {loading ? "Memverifikasi..." : "Login"}
           </button>
         </form>
 
-        <p className="text-center text-[10px] mt-4" style={{ color: "var(--text-muted)" }}>
-          Demo Coach: <strong>coach12 / 223344</strong>
+        {/* Tagline */}
+        <p
+          className="text-center mt-5 text-xs tracking-widest uppercase"
+          style={{ color: "rgba(212,175,55,0.45)" }}
+        >
+          The aura exclusive
         </p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarCheck, Search, Filter, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { CalendarCheck, Search, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
 
 const ATTENDANCE_DATA = [
   { id: 1, name: "Ahmad Rizky", pos: "SG", jersey: 7, status: "present", time: "06:45", notes: "-" },

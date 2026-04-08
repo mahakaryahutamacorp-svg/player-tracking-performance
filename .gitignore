@@ -1,2 +1,18 @@
 .vercel
 .env*.local
+
+# Dependencies & build
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Tooling / IDE
+.cursor/
+*.log
+.DS_Store
+Thumbs.db
+
+# Copilot / local worktrees (do not commit)
+player-tracking.worktrees/

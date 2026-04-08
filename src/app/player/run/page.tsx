@@ -42,7 +42,6 @@ export default function RunPage() {
   const [currentPos, setCurrentPos] = useState<Position | null>(null);
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
   const watchIdRef = useRef<number | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -72,8 +71,6 @@ export default function RunPage() {
     setPositions([]);
     setDistance(0);
     setDuration(0);
-    const now = Date.now();
-    setStartTime(now);
 
     // Timer
     timerRef.current = setInterval(() => {

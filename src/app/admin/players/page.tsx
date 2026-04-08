@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Search, Filter, ArrowUpDown, ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 const PLAYERS = [
   { id: 1, name: "Ahmad Rizky", jersey: 7, pos: "SG", per: 24.6, shooting: 52, power: 3.85, distance: 32.4, attendance: 95, trend: "up" },

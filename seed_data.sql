@@ -1,5 +1,6 @@
 -- 🏀 PLAYER TRACKING SEED (CUSTOM AUTH VERSION)
 -- Run this AFTER supabase_schema.sql.
+-- Then run supabase_custom_auth_login.sql so the app can log in with the anon key (RLS-safe RPC).
 
 -- 1. SEED SESSIONS & ANNOUNCEMENTS
 INSERT INTO public.training_sessions (title, description, start_time, end_time, session_type)

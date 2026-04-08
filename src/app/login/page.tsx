@@ -20,13 +20,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 🏀 CUSTOM AUTH LOGIC (Plain-text Username/Password)
-      const { data: user, error } = await supabase
-        .from("users")
-        .select("id, username, role, full_name")
-        .eq("username", email)
-        .eq("password_plain", password)
-        .single();
+      // 🏀 CUSTOM AUTH: RPC bypasses RLS safely (see supabase_custom_auth_login.sql)
+      const { data, error } = await supabase.rpc("login_with_credentials", {
+        p_username: email.trim(),
+        p_password: password,
+      });
+
+      const user = Array.isArray(data) ? data[0] : data;
 
       if (error || !user) {
         throw new Error("ID atau Password salah.");
